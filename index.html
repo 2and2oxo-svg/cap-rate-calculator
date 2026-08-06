@@ -608,17 +608,21 @@ document.querySelectorAll('.tab').forEach(tab=>{
   });
 });
 
-// Enter 키로 계산 실행 (각 패널 내부 입력창에서만 동작)
+// Enter 키로 계산 실행 (각 패널 내부 입력창에서만 동작) 후 첫 입력 필드로 재포커스
 document.getElementById('panel-rentToValue').addEventListener('keydown', (e)=>{
   if(e.key === 'Enter' && e.target.tagName === 'INPUT'){
     e.preventDefault();
     calcRentToValue();
+    const first = document.getElementById('r_deposit');
+    if(first){ first.focus(); first.select(); }
   }
 });
 document.getElementById('panel-valueToRent').addEventListener('keydown', (e)=>{
   if(e.key === 'Enter' && e.target.tagName === 'INPUT'){
     e.preventDefault();
     calcValueToRent();
+    const first = document.getElementById('v_value');
+    if(first){ first.focus(); first.select(); }
   }
 });
 
