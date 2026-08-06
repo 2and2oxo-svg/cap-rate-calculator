@@ -407,7 +407,7 @@ table.result-table{
       <div class="field">
         <label>보증금 <span class="hint">DEPOSIT</span></label>
         <div class="input-row">
-          <input type="text" inputmode="numeric" id="r_deposit" value="100,000,000">
+          <input type="text" inputmode="numeric" id="r_deposit" value="100,000,000" autofocus>
           <span class="unit">원</span>
         </div>
       </div>
@@ -596,13 +596,30 @@ document.querySelectorAll('input[inputmode="numeric"]').forEach(inp=>{
 });
 
 // tabs
+const FIRST_FIELD = { rentToValue: 'r_deposit', valueToRent: 'v_value' };
 document.querySelectorAll('.tab').forEach(tab=>{
   tab.addEventListener('click', ()=>{
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
     tab.classList.add('active');
     document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+    const firstField = document.getElementById(FIRST_FIELD[tab.dataset.tab]);
+    if(firstField){ firstField.focus(); firstField.select(); }
   });
+});
+
+// Enter 키로 계산 실행 (각 패널 내부 입력창에서만 동작)
+document.getElementById('panel-rentToValue').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter' && e.target.tagName === 'INPUT'){
+    e.preventDefault();
+    calcRentToValue();
+  }
+});
+document.getElementById('panel-valueToRent').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter' && e.target.tagName === 'INPUT'){
+    e.preventDefault();
+    calcValueToRent();
+  }
 });
 
 function calcRentToValue(){
@@ -691,6 +708,12 @@ function calcValueToRent(){
 
 // initial run for preview
 calcRentToValue();
+
+// 첫 입력 필드로 포커스 (autofocus 미동작 브라우저 대비)
+window.addEventListener('DOMContentLoaded', ()=>{
+  const el = document.getElementById('r_deposit');
+  if(el){ el.focus(); el.select(); }
+});
 </script>
 
 </body>
