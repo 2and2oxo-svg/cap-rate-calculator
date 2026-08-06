@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<!-- saved from url=(0044)file:///C:/Users/User/Downloads/index_5.html -->
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>직접환원법 산정기 — 임대료·수익가액 계산</title>
+<link rel="stylesheet" as="style" crossorigin="" href="./직접환원법 산정기 — 임대료·수익가액 계산_files/pretendard.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root{
+  --paper:#F1EEE3;
+  --paper-deep:#E9E4D4;
+  --line:#CFC8B4;
+  --line-soft:#DEDACB;
+  --ink:#1E2A44;
+  --ink-soft:#5B6478;
+  --ink-faint:#8B90A0;
+  --seal:#A63B2E;
+  --seal-soft:rgba(166,59,46,0.07);
+  --gold:#AD8438;
+  --white:#FBFAF4;
+  --radius:2px;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    linear-gradient(var(--paper) 0 0);
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size:28px 28px;
+  color:var(--ink);
+  font-family:'Pretendard', -apple-system, sans-serif;
+  min-height:100vh;
+  padding:40px 20px 80px;
+}
+
+.sheet{
+  max-width:920px;
+  margin:0 auto;
+  background:var(--white);
+  border:1px solid var(--line);
+  box-shadow:0 1px 0 var(--line), 0 18px 40px -24px rgba(30,42,68,0.35);
+  position:relative;
+}
+
+/* ===== HEADER ===== */
+.doc-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  padding:36px 40px 26px;
+  border-bottom:2px solid var(--ink);
+  position:relative;
+}
+.doc-title-wrap{display:flex; flex-direction:column; gap:6px;}
+.eyebrow{
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px;
+  letter-spacing:0.16em;
+  color:var(--seal);
+  text-transform:uppercase;
+}
+h1{
+  font-family:'Noto Serif KR', serif;
+  font-weight:700;
+  font-size:26px;
+  margin:0;
+  letter-spacing:-0.01em;
+  color:var(--ink);
+}
+.subtitle{
+  font-size:13px;
+  color:var(--ink-soft);
+  margin-top:2px;
+  line-height:1.6;
+}
+
+.seal{
+  flex:none;
+  width:78px;
+  height:78px;
+  position:relative;
+  transform:rotate(-9deg);
+  opacity:0.92;
+}
+.seal svg{width:100%;height:100%;display:block; mix-blend-mode:multiply;}
+
+/* ===== TABS ===== */
+.tabs{
+  display:flex;
+  border-bottom:1px solid var(--line);
+  background:var(--paper-deep);
+}
+.tab{
+  flex:1;
+  text-align:center;
+  padding:16px 12px;
+  font-family:'Noto Serif KR', serif;
+  font-size:14.5px;
+  font-weight:600;
+  color:var(--ink-faint);
+  cursor:pointer;
+  border-right:1px solid var(--line);
+  position:relative;
+  transition:color .18s ease, background .18s ease;
+  user-select:none;
+}
+.tab:last-child{border-right:none;}
+.tab .num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:inherit;
+  opacity:0.6;
+  margin-right:6px;
+}
+.tab.active{
+  color:var(--ink);
+  background:var(--white);
+}
+.tab.active::after{
+  content:'';
+  position:absolute;
+  left:0;right:0;bottom:-1px;
+  height:2px;
+  background:var(--seal);
+}
+.tab:hover:not(.active){ color:var(--ink-soft); }
+
+/* ===== BODY ===== */
+.panel{ padding:34px 40px 10px; display:none; }
+.panel.active{ display:block; }
+
+.section-label{
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px;
+  letter-spacing:0.14em;
+  color:var(--ink-faint);
+  text-transform:uppercase;
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.section-label::after{
+  content:'';
+  flex:1;
+  height:1px;
+  background:var(--line);
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+  margin-bottom:26px;
+}
+.field{
+  padding:14px 18px;
+  border-bottom:1px solid var(--line-soft);
+  border-right:1px solid var(--line-soft);
+}
+.field:nth-child(2n){ border-right:none; }
+.field label{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  font-size:12.5px;
+  color:var(--ink-soft);
+  margin-bottom:6px;
+}
+.field label .hint{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  color:var(--ink-faint);
+}
+.field .input-row{
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:4px;
+}
+.field .input-row:focus-within{ border-bottom-color:var(--seal); }
+.field input{
+  border:none;
+  outline:none;
+  background:transparent;
+  font-family:'JetBrains Mono', monospace;
+  font-size:16px;
+  font-weight:500;
+  color:var(--ink);
+  width:100%;
+  padding:2px 0;
+}
+.field .unit{
+  font-size:12px;
+  color:var(--ink-faint);
+  white-space:nowrap;
+}
+
+.calc-btn-row{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:30px;
+}
+.calc-btn{
+  font-family:'Noto Serif KR', serif;
+  font-weight:600;
+  font-size:14px;
+  background:var(--ink);
+  color:var(--white);
+  border:none;
+  padding:13px 28px;
+  cursor:pointer;
+  letter-spacing:0.02em;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  transition:background .15s ease, transform .1s ease;
+}
+.calc-btn:hover{ background:#12192b; }
+.calc-btn:active{ transform:translateY(1px); }
+.calc-btn svg{width:14px;height:14px;}
+
+/* ===== RESULTS ===== */
+.results{
+  position:relative;
+  opacity:0;
+  transform:translateY(6px);
+  transition:opacity .35s ease, transform .35s ease;
+  padding-bottom:8px;
+}
+.results.show{ opacity:1; transform:translateY(0); }
+
+.derivation{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  border:1px solid var(--line);
+  margin-bottom:22px;
+}
+.deriv-cell{
+  padding:12px 14px;
+  border-right:1px solid var(--line-soft);
+  background:var(--paper-deep);
+}
+.deriv-cell:last-child{border-right:none;}
+.deriv-cell .k{
+  font-size:10.5px;
+  color:var(--ink-soft);
+  margin-bottom:4px;
+}
+.deriv-cell .v{
+  font-family:'JetBrains Mono', monospace;
+  font-size:13px;
+  font-weight:600;
+  color:var(--ink);
+}
+.deriv-cell.noi{ background:var(--seal-soft); }
+.deriv-cell.noi .v{ color:var(--seal); }
+
+table.result-table{
+  width:100%;
+  border-collapse:collapse;
+  font-family:'JetBrains Mono', monospace;
+  font-size:13px;
+}
+.result-table thead th{
+  text-align:right;
+  font-family:'Pretendard';
+  font-weight:600;
+  font-size:12px;
+  color:var(--ink-soft);
+  padding:10px 16px;
+  border-bottom:2px solid var(--ink);
+  background:var(--paper-deep);
+}
+.result-table thead th:first-child{ text-align:left; }
+.result-table tbody td{
+  text-align:right;
+  padding:10px 16px;
+  border-bottom:1px solid var(--line-soft);
+  color:var(--ink);
+}
+.result-table tbody td:first-child{
+  text-align:left;
+  font-weight:700;
+  color:var(--ink);
+}
+.result-table tbody tr:nth-child(even){ background:#F7F5EC; }
+.result-table tbody tr.mid{ background:var(--seal-soft); }
+.result-table tbody tr.mid td:first-child{ color:var(--seal); }
+.result-table tbody tr.mid td:first-child::after{
+  content:'표준';
+  font-family:'Pretendard';
+  font-weight:500;
+  font-size:9.5px;
+  color:var(--seal);
+  border:1px solid var(--seal);
+  border-radius:20px;
+  padding:1px 6px;
+  margin-left:8px;
+  vertical-align:middle;
+}
+.result-table td.sub{
+  font-size:11px;
+  color:var(--ink-faint);
+  display:block;
+  margin-top:2px;
+}
+.result-table tbody tr.negative td{ color:#B33A3A; }
+.result-table tbody tr.negative td:first-child::before{
+  content:'⚠ ';
+}
+
+.notes{
+  margin-top:28px;
+  padding:16px 18px;
+  background:var(--paper-deep);
+  border-left:3px solid var(--gold);
+  font-size:12px;
+  line-height:1.8;
+  color:var(--ink-soft);
+}
+.notes b{ color:var(--ink); }
+
+.empty-msg{
+  font-size:13px;
+  color:var(--ink-faint);
+  text-align:center;
+  padding:34px 0 10px;
+  font-family:'JetBrains Mono', monospace;
+}
+
+.footer-bar{
+  border-top:2px solid var(--ink);
+  padding:16px 40px;
+  display:flex;
+  justify-content:space-between;
+  font-family:'JetBrains Mono', monospace;
+  font-size:10.5px;
+  color:var(--ink-faint);
+  letter-spacing:0.04em;
+}
+
+@media (max-width:640px){
+  body{padding:16px 10px 60px;}
+  .doc-header{padding:26px 20px 20px; flex-direction:column; gap:16px;}
+  .seal{align-self:flex-end;}
+  .panel{padding:24px 18px 10px;}
+  .form-grid{grid-template-columns:1fr;}
+  .field:nth-child(2n){border-right:1px solid var(--line-soft);}
+  .derivation{grid-template-columns:repeat(2,1fr);}
+  .deriv-cell:nth-child(2n){border-right:none;}
+  .result-table{font-size:11.5px;}
+  .result-table thead th, .result-table tbody td{padding:8px 8px;}
+  .footer-bar{flex-direction:column; gap:4px; padding:14px 20px;}
+}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+
+  <div class="doc-header">
+    <div class="doc-title-wrap">
+      <div class="eyebrow">Income Capitalization · 직접환원법</div>
+      <h1>수익가액 · 적정임대료 산정기</h1>
+      <div class="subtitle">임대료 ⇄ 부동산 가치를 환원율 4.0%~8.0% (0.5%p 단위) 구간으로<br>시뮬레이션하는 상업용 부동산 참고 계산 도구</div>
+    </div>
+    <div class="seal">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="inkTexture" x="-20%" y="-20%" width="140%" height="140%">
+            <feturbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="noise"></feturbulence>
+            <fedisplacementmap in="SourceGraphic" in2="noise" scale="4"></fedisplacementmap>
+          </filter>
+        </defs>
+        <g filter="url(#inkTexture)" fill="none" stroke="#A63B2E" stroke-width="2.4">
+          <circle cx="50" cy="50" r="44"></circle>
+          <circle cx="50" cy="50" r="37"></circle>
+        </g>
+        <g filter="url(#inkTexture)" fill="#A63B2E">
+          <text x="50" y="42" text-anchor="middle" font-family="&#39;Noto Serif KR&#39;,serif" font-size="15" font-weight="700">鑑定</text>
+          <text x="50" y="63" text-anchor="middle" font-family="&#39;Noto Serif KR&#39;,serif" font-size="12" font-weight="700">評價</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="rentToValue"><span class="num">01</span>임대료 → 수익가액</div>
+    <div class="tab" data-tab="valueToRent"><span class="num">02</span>가치 → 적정임대료</div>
+  </div>
+
+  <!-- ============ PANEL 1: 임대료 → 가치 ============ -->
+  <div class="panel active" id="panel-rentToValue">
+    <div class="section-label">입력값</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>보증금 <span class="hint">DEPOSIT</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="numeric" id="r_deposit" value="100,000,000">
+          <span class="unit">원</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>월세 <span class="hint">MONTHLY RENT</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="numeric" id="r_rent" value="5,000,000">
+          <span class="unit">원 / 월</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>보증금 환산이율 <span class="hint">DEPOSIT RATE</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="decimal" id="r_depositRate" value="3.0">
+          <span class="unit">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>공실률 <span class="hint">VACANCY</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="decimal" id="r_vacancy" value="10.0">
+          <span class="unit">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>운영경비율 <span class="hint">OPEX RATIO</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="decimal" id="r_opex" value="10.0">
+          <span class="unit">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>비고 <span class="hint">basis</span></label>
+        <div class="input-row" style="border-bottom:1px solid transparent;">
+          <span class="unit">EGI 기준 경비율 적용</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-btn-row">
+      <button class="calc-btn" onclick="calcRentToValue()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path></svg>
+        수익가액 산정
+      </button>
+    </div>
+
+    <div class="results show" id="results-rentToValue">
+      <div class="section-label">산출 근거</div>
+      <div class="derivation" id="deriv-rentToValue">
+    <div class="deriv-cell"><div class="k">연 PGI (가능총소득)</div><div class="v">6,300만원</div></div>
+    <div class="deriv-cell"><div class="k">공실손실 (−10.0%)</div><div class="v">630만원</div></div>
+    <div class="deriv-cell"><div class="k">EGI (유효총소득)</div><div class="v">5,670만원</div></div>
+    <div class="deriv-cell"><div class="k">운영경비 (−10.0%)</div><div class="v">567만원</div></div>
+    <div class="deriv-cell noi"><div class="k">NOI (순영업소득)</div><div class="v">5,103만원</div></div>
+  </div>
+
+      <div class="section-label">환원율별 수익가액 (환원율 4.0% ~ 8.0%, 0.5%p 단위)</div>
+      <table class="result-table">
+        <thead>
+          <tr><th>환원율</th><th>순영업소득 (NOI, 연)</th><th>산정 수익가액</th></tr>
+        </thead>
+        <tbody id="table-rentToValue"><tr class="">
+      <td>4.0%</td>
+      <td>5,103만원<span class="sub">51,030,000원</span></td>
+      <td>12억 7,575만원<span class="sub">1,275,750,000원</span></td>
+    </tr><tr class="">
+      <td>4.5%</td>
+      <td>5,103만원<span class="sub">51,030,000원</span></td>
+      <td>11억 3,400만원<span class="sub">1,134,000,000원</span></td>
+    </tr><tr class="">
+      <td>5.0%</td>
+      <td>5,103만원<span class="sub">51,030,000원</span></td>
+      <td>10억 2,060만원<span class="sub">1,020,600,000원</span></td>
+    </tr><tr class="">
+      <td>5.5%</td>
+      <td>5,103만원<span class="sub">51,030,000원</span></td>
+      <td>9억 2,781만 8,182원<span class="sub">927,818,182원</span></td>
+    </tr><tr class="mid">
+      <td>6.0%</td>
+      <td>5,103만원<span class="sub">51,030,000원</span></td>
+      <td>8억 5,050만원<span class="sub">850,500,000원</span></td>
+    </tr><tr class="">
+      <td>6.5%</td>
+      <td>5,103만원<span class="sub">51,030,000원</span></td>
+      <td>7억 8,507만 6,923원<span class="sub">785,076,923원</span></td>
+    </tr><tr class="">
+      <td>7.0%</td>
+      <td>5,103만원<span class="sub">51,030,000원</span></td>
+      <td>7억 2,900만원<span class="sub">729,000,000원</span></td>
+    </tr><tr class="">
+      <td>7.5%</td>
+      <td>5,103만원<span class="sub">51,030,000원</span></td>
+      <td>6억 8,040만원<span class="sub">680,400,000원</span></td>
+    </tr><tr class="">
+      <td>8.0%</td>
+      <td>5,103만원<span class="sub">51,030,000원</span></td>
+      <td>6억 3,787만 5,000원<span class="sub">637,875,000원</span></td>
+    </tr></tbody>
+      </table>
+    </div>
+
+    <div class="empty-msg" id="empty-rentToValue" style="display: none;">입력값을 확인한 뒤 «수익가액 산정»을 눌러주세요.</div>
+
+    <div class="notes">
+      <b>산식</b> · 연PGI = (월세 + 보증금×환산이율÷12) × 12 &nbsp;→&nbsp; EGI = PGI×(1−공실률) &nbsp;→&nbsp; NOI = EGI×(1−운영경비율) &nbsp;→&nbsp; <b>가치 = NOI ÷ 환원율</b><br>
+      본 계산기는 직접환원법에 의한 참고용 시산가액을 제공하며, 실제 감정평가액과 다를 수 있습니다. 최종 의사결정 시 공인된 감정평가사의 평가를 거치시기 바랍니다.
+    </div>
+  </div>
+
+  <!-- ============ PANEL 2: 가치 → 임대료 ============ -->
+  <div class="panel" id="panel-valueToRent">
+    <div class="section-label">입력값</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>부동산 가치 <span class="hint">ASSET VALUE</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="numeric" id="v_value" value="1,500,000,000">
+          <span class="unit">원</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>희망 보증금 <span class="hint">DEPOSIT</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="numeric" id="v_deposit" value="0">
+          <span class="unit">원</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>보증금 환산이율 <span class="hint">DEPOSIT RATE</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="decimal" id="v_depositRate" value="3.0">
+          <span class="unit">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>공실률 <span class="hint">VACANCY</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="decimal" id="v_vacancy" value="10.0">
+          <span class="unit">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>운영경비율 <span class="hint">OPEX RATIO</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="decimal" id="v_opex" value="10.0">
+          <span class="unit">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>비고 <span class="hint">basis</span></label>
+        <div class="input-row" style="border-bottom:1px solid transparent;">
+          <span class="unit">PGI 역산 → 월세 도출</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-btn-row">
+      <button class="calc-btn" onclick="calcValueToRent()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path></svg>
+        적정임대료 산정
+      </button>
+    </div>
+
+    <div class="results" id="results-valueToRent">
+      <div class="section-label">산출 근거</div>
+      <div class="derivation" id="deriv-valueToRent"></div>
+
+      <div class="section-label">환원율별 적정 임대료 (환원율 4.0% ~ 8.0%, 0.5%p 단위)</div>
+      <table class="result-table">
+        <thead>
+          <tr><th>환원율</th><th>순영업소득 (NOI, 연)</th><th>연 임대료 (PGI)</th><th>적정 월세</th></tr>
+        </thead>
+        <tbody id="table-valueToRent"></tbody>
+      </table>
+    </div>
+
+    <div class="empty-msg" id="empty-valueToRent">입력값을 확인한 뒤 «적정임대료 산정»을 눌러주세요.</div>
+
+    <div class="notes">
+      <b>산식</b> · NOI = 가치×환원율 &nbsp;→&nbsp; EGI = NOI÷(1−운영경비율) &nbsp;→&nbsp; PGI = EGI÷(1−공실률) &nbsp;→&nbsp; <b>월세 = PGI÷12 − 보증금×환산이율÷12</b><br>
+      보증금이 클수록 환산월세가 커져 표시 월세는 낮아집니다. 월세가 음수(⚠)로 표시되면 해당 환원율 구간에서 희망 보증금이 과도함을 의미합니다.
+    </div>
+  </div>
+
+  <div class="footer-bar">
+    <span>DIRECT CAPITALIZATION SIMULATOR</span>
+    <span>CAP RATE 4.0%–8.0% · STEP 0.5%p</span>
+  </div>
+
+</div>
+
+<script>
+const CAP_RATES = [4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0];
+const MID_RATE = 6.0;
+
+function toNumber(id){
+  const el = document.getElementById(id);
+  const raw = el.value.replace(/[^0-9.\-]/g,'');
+  const n = parseFloat(raw);
+  return isNaN(n) ? 0 : n;
+}
+
+function formatComma(n){
+  return Math.round(n).toLocaleString('ko-KR');
+}
+
+function formatKRW(n){
+  if(n===null || isNaN(n)) return '-';
+  const sign = n < 0 ? '−' : '';
+  n = Math.abs(Math.round(n));
+  const eok = Math.floor(n / 100000000);
+  const man = Math.floor((n % 100000000) / 10000);
+  const rest = n % 10000;
+  let parts = [];
+  if(eok>0) parts.push(eok+'억');
+  if(man>0) parts.push(man.toLocaleString('ko-KR')+'만');
+  if(parts.length===0) parts.push(n.toLocaleString('ko-KR'));
+  else if(rest>0) parts.push(rest.toLocaleString('ko-KR'));
+  return sign + parts.join(' ') + '원';
+}
+
+// live comma-formatting for numeric-amount inputs
+document.querySelectorAll('input[inputmode="numeric"]').forEach(inp=>{
+  inp.addEventListener('input', ()=>{
+    const digits = inp.value.replace(/[^0-9]/g,'');
+    inp.value = digits ? Number(digits).toLocaleString('ko-KR') : '';
+  });
+});
+
+// tabs
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+function calcRentToValue(){
+  const deposit = toNumber('r_deposit');
+  const rent = toNumber('r_rent');
+  const depositRate = toNumber('r_depositRate');
+  const vacancy = toNumber('r_vacancy');
+  const opex = toNumber('r_opex');
+
+  const depositMonthlyEq = deposit * (depositRate/100) / 12;
+  const monthlyTotal = rent + depositMonthlyEq;
+  const pgi = monthlyTotal * 12;
+  const vacancyLoss = pgi * (vacancy/100);
+  const egi = pgi - vacancyLoss;
+  const opexAmt = egi * (opex/100);
+  const noi = egi - opexAmt;
+
+  const derivEl = document.getElementById('deriv-rentToValue');
+  derivEl.innerHTML = `
+    <div class="deriv-cell"><div class="k">연 PGI (가능총소득)</div><div class="v">${formatKRW(pgi)}</div></div>
+    <div class="deriv-cell"><div class="k">공실손실 (−${vacancy.toFixed(1)}%)</div><div class="v">${formatKRW(vacancyLoss)}</div></div>
+    <div class="deriv-cell"><div class="k">EGI (유효총소득)</div><div class="v">${formatKRW(egi)}</div></div>
+    <div class="deriv-cell"><div class="k">운영경비 (−${opex.toFixed(1)}%)</div><div class="v">${formatKRW(opexAmt)}</div></div>
+    <div class="deriv-cell noi"><div class="k">NOI (순영업소득)</div><div class="v">${formatKRW(noi)}</div></div>
+  `;
+
+  const tbody = document.getElementById('table-rentToValue');
+  tbody.innerHTML = CAP_RATES.map(r=>{
+    const value = noi / (r/100);
+    const midClass = r===MID_RATE ? ' mid' : '';
+    return `<tr class="${midClass.trim()}">
+      <td>${r.toFixed(1)}%</td>
+      <td>${formatKRW(noi)}<span class="sub">${formatComma(noi)}원</span></td>
+      <td>${formatKRW(value)}<span class="sub">${formatComma(value)}원</span></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('empty-rentToValue').style.display='none';
+  const res = document.getElementById('results-rentToValue');
+  res.classList.remove('show');
+  void res.offsetWidth;
+  res.classList.add('show');
+}
+
+function calcValueToRent(){
+  const value = toNumber('v_value');
+  const deposit = toNumber('v_deposit');
+  const depositRate = toNumber('v_depositRate');
+  const vacancy = toNumber('v_vacancy');
+  const opex = toNumber('v_opex');
+
+  const depositMonthlyEq = deposit * (depositRate/100) / 12;
+
+  const derivEl = document.getElementById('deriv-valueToRent');
+  derivEl.innerHTML = `
+    <div class="deriv-cell"><div class="k">부동산 가치</div><div class="v">${formatKRW(value)}</div></div>
+    <div class="deriv-cell"><div class="k">희망 보증금</div><div class="v">${formatKRW(deposit)}</div></div>
+    <div class="deriv-cell"><div class="k">보증금 환산월세</div><div class="v">${formatKRW(depositMonthlyEq)}</div></div>
+    <div class="deriv-cell"><div class="k">공실률 / 경비율</div><div class="v">${vacancy.toFixed(1)}% / ${opex.toFixed(1)}%</div></div>
+    <div class="deriv-cell noi"><div class="k">환원율 6.0% 기준 NOI</div><div class="v">${formatKRW(value*0.06)}</div></div>
+  `;
+
+  const tbody = document.getElementById('table-valueToRent');
+  tbody.innerHTML = CAP_RATES.map(r=>{
+    const noi = value * (r/100);
+    const egi = noi / (1 - opex/100);
+    const pgi = egi / (1 - vacancy/100);
+    const monthlyTotal = pgi/12;
+    const monthlyRent = monthlyTotal - depositMonthlyEq;
+    const midClass = r===MID_RATE ? 'mid' : '';
+    const negClass = monthlyRent < 0 ? 'negative' : '';
+    return `<tr class="${midClass} ${negClass}">
+      <td>${r.toFixed(1)}%</td>
+      <td>${formatKRW(noi)}<span class="sub">${formatComma(noi)}원</span></td>
+      <td>${formatKRW(pgi)}<span class="sub">${formatComma(pgi)}원</span></td>
+      <td>${formatKRW(monthlyRent)}<span class="sub">/ 월</span></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('empty-valueToRent').style.display='none';
+  const res = document.getElementById('results-valueToRent');
+  res.classList.remove('show');
+  void res.offsetWidth;
+  res.classList.add('show');
+}
+
+// initial run for preview
+calcRentToValue();
+</script>
+
+
+
+</body></html>
