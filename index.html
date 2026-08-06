@@ -309,11 +309,10 @@ table.result-table{
   margin-left:8px;
   vertical-align:middle;
 }
-.result-table td.sub{
+.result-table .unit-inline{
   font-size:11px;
   color:var(--ink-faint);
-  display:block;
-  margin-top:2px;
+  font-family:'Pretendard';
 }
 .result-table tbody tr.negative td{ color:#B33A3A; }
 .result-table tbody tr.negative td:first-child::before{
@@ -656,8 +655,8 @@ function calcRentToValue(){
     const midClass = r===MID_RATE ? ' mid' : '';
     return `<tr class="${midClass.trim()}">
       <td>${r.toFixed(1)}%</td>
-      <td>${formatKRW(noi)}<span class="sub">${formatComma(noi)}원</span></td>
-      <td>${formatKRW(value)}<span class="sub">${formatComma(value)}원</span></td>
+      <td>${formatKRW(noi)}</td>
+      <td>${formatKRW(value)}</td>
     </tr>`;
   }).join('');
 
@@ -697,9 +696,9 @@ function calcValueToRent(){
     const negClass = monthlyRent < 0 ? 'negative' : '';
     return `<tr class="${midClass} ${negClass}">
       <td>${r.toFixed(1)}%</td>
-      <td>${formatKRW(noi)}<span class="sub">${formatComma(noi)}원</span></td>
-      <td>${formatKRW(pgi)}<span class="sub">${formatComma(pgi)}원</span></td>
-      <td>${formatKRW(monthlyRent)}<span class="sub">/ 월</span></td>
+      <td>${formatKRW(noi)}</td>
+      <td>${formatKRW(pgi)}</td>
+      <td>${formatKRW(monthlyRent)} <span class="unit-inline">/ 월</span></td>
     </tr>`;
   }).join('');
 
