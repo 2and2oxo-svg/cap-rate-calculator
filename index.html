@@ -525,6 +525,25 @@ table.result-table{
 .derivation.six .deriv-cell:nth-child(3n){ border-right:none; }
 .derivation.six .deriv-cell:nth-child(n+4){ border-top:1px solid var(--line-soft); }
 
+/* ADR 민감도 표 (환원율 × 점유율) */
+.table-scroll{ overflow-x:auto; }
+.result-table.matrix{ min-width:520px; }
+.result-table.wide{ min-width:600px; }
+.result-table.wide th, .result-table.wide td,
+.result-table.matrix th, .result-table.matrix td{ white-space:nowrap; }
+.result-table thead th.col-sel{ color:var(--seal); }
+.result-table td.sel-cell{
+  background:rgba(166,59,46,0.14);
+  color:var(--seal);
+  font-weight:700;
+}
+.sub-label{
+  font-size:12px;
+  color:var(--ink-soft);
+  margin:-6px 0 12px;
+  line-height:1.6;
+}
+
 /* 요금 입력 참고용 배수 표시 */
 .ratio{
   display:block;
@@ -677,6 +696,7 @@ table.result-table{
     <div class="tab active" data-tab="rentToValue"><span class="num">01</span>임대료 → 수익가액</div>
     <div class="tab" data-tab="valueToRent"><span class="num">02</span>가치 → 적정임대료</div>
     <div class="tab" data-tab="hotelValue"><span class="num">03</span>숙박시설 → 수익가액</div>
+    <div class="tab" data-tab="adrEstimate"><span class="num">04</span>수익가액 → ADR 추정</div>
   </div>
 
   <!-- ============ PANEL 1: 임대료 → 가치 ============ -->
@@ -969,6 +989,112 @@ table.result-table{
     </div>
   </div>
 
+  <!-- ============ PANEL 4: 숙박시설 수익가액 → ADR 추정 ============ -->
+  <div class="panel" id="panel-adrEstimate">
+    <div class="section-label">대상 시설</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>수익가액 <span class="hint">INCOME VALUE</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="numeric" id="a_value" value="8,000,000,000">
+          <span class="unit">원</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>총 객실 수 <span class="hint">TOTAL ROOMS</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="numeric" id="a_rooms" value="35">
+          <span class="unit">실</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">점유율</div>
+    <div class="occ-block">
+      <div class="occ-group">
+        <div class="occ-ctl">
+          <div class="occ-top">
+            <label for="a_occ">숙박 점유율 <span class="hint">평일·주말 공통</span></label>
+            <div class="occ-val"><input type="text" inputmode="decimal" class="occ-num" id="a_occ" value="70.0"><span>%</span></div>
+          </div>
+          <input type="range" class="occ-range" data-for="a_occ" min="0" max="100" step="0.5" value="70" aria-label="숙박 점유율">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">운영 가정</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>연 영업일수 <span class="hint">OPERATING DAYS</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="numeric" id="a_days" value="365">
+          <span class="unit">일 / 년</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>부대수익 비중 <span class="hint">ANCILLARY SHARE</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="decimal" id="a_ancillary" value="0.0">
+          <span class="unit">% · 영업수익 중</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>경비율 <span class="hint">EXPENSE RATIO</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="decimal" id="a_opex" value="40.0">
+          <span class="unit">% · 충당금 제외</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>환원율 <span class="hint">CAP RATE</span></label>
+        <div class="input-row">
+          <input type="text" inputmode="decimal" id="a_cap" value="7.0">
+          <span class="unit">%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-btn-row">
+      <button class="calc-btn" onclick="calcAdrEstimate()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        ADR 추정
+      </button>
+    </div>
+
+    <div class="results" id="results-adrEstimate">
+      <div class="section-label">산출 근거</div>
+      <div class="derivation" id="deriv-adrEstimate"></div>
+      <div class="metrics" id="metrics-adrEstimate"></div>
+
+      <div class="section-label">환원율별 추정 ADR (환원율 4.0% ~ 8.0%, 0.5%p 단위)</div>
+      <div class="table-scroll">
+        <table class="result-table wide">
+          <thead>
+            <tr><th>환원율</th><th>순영업소득 (NOI, 연)</th><th>영업수익</th><th>추정 ADR (VAT 제외)</th><th>ADR (VAT 포함)</th></tr>
+          </thead>
+          <tbody id="table-adrEstimate"></tbody>
+        </table>
+      </div>
+
+      <div class="section-label" style="margin-top:30px;">점유율에 따른 ADR 변화 (단위: 원/박, VAT 제외)</div>
+      <div class="sub-label">점유율을 높게 가정할수록 같은 수익가액에서 추정 ADR은 낮아집니다. 입력하신 환원율·점유율 조합이 강조됩니다.</div>
+      <div class="table-scroll">
+        <table class="result-table matrix">
+          <thead id="thead-adrMatrix"></thead>
+          <tbody id="table-adrMatrix"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="empty-msg" id="empty-adrEstimate">입력값을 확인한 뒤 «ADR 추정»을 눌러주세요.</div>
+
+    <div class="notes">
+      <b>산식</b> · NOI = 수익가액 × 환원율 &nbsp;→&nbsp; 영업수익 = NOI ÷ (1−경비율) &nbsp;→&nbsp; 객실매출 = 영업수익 × (1−부대수익 비중) &nbsp;→&nbsp; <b>ADR = 객실매출 ÷ (총 객실 수 × 연 영업일수 × 점유율)</b><br>
+      이 탭은 대실 매출을 포함하지 않고 숙박 객실매출만으로 ADR을 역산합니다. 객실 타입·요일별 요금 구분 없이 전체 객실 기준의 평균 ADR 하나를 추정하며, 판매된 객실박수당 평균 요금(VAT 제외 공급가 기준)입니다. VAT 포함 ADR은 공급가에 10%를 더해 병기합니다.<br>
+      경비율에는 FF&amp;E 대체충당금이 포함되어 있지 않고, 충당금은 별도로 차감하지도 않습니다. 부대수익 비중(F&amp;B, 주차 등)은 기본 0%이며, 입력하면 영업수익에서 그만큼을 제외하고 ADR을 계산합니다.
+    </div>
+  </div>
+
   <div class="footer-bar">
     <span>DIRECT CAPITALIZATION SIMULATOR</span>
     <span>CAP RATE 4.0%–8.0% · STEP 0.5%p</span>
@@ -1018,7 +1144,8 @@ document.querySelectorAll('input[inputmode="numeric"]').forEach(inp=>{
 const FIRST_FIELD = {
   rentToValue: ()=>document.getElementById('r_deposit'),
   valueToRent: ()=>document.getElementById('v_value'),
-  hotelValue:  ()=>document.querySelector('#roomRows .r-count')
+  hotelValue:  ()=>document.querySelector('#roomRows .r-count'),
+  adrEstimate: ()=>document.getElementById('a_value')
 };
 function focusFirst(key){
   const el = FIRST_FIELD[key] && FIRST_FIELD[key]();
@@ -1056,6 +1183,13 @@ document.getElementById('panel-hotelValue').addEventListener('keydown', (e)=>{
     e.preventDefault();
     calcHotelValue();
     focusFirst('hotelValue');
+  }
+});
+document.getElementById('panel-adrEstimate').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter' && e.target.tagName === 'INPUT'){
+    e.preventDefault();
+    calcAdrEstimate();
+    focusFirst('adrEstimate');
   }
 });
 
@@ -1388,6 +1522,120 @@ hotelPanel.addEventListener('input', (e)=>{
 // 브라우저의 폼 상태 복원(새로고침 등)과 화면 상태를 일치시킴
 applyDayUse();
 window.addEventListener('pageshow', applyDayUse);
+
+/* ================= 숙박시설: 수익가액 → ADR 추정 ================= */
+
+const ADR_VAT_RATE = 0.10;
+const adrPanel = document.getElementById('panel-adrEstimate');
+
+// 한 환원율(cap, 소수)에 대한 역산. p.occ/opex/anc는 모두 소수(0.7 = 70%)
+function adrCore(p, cap){
+  const noi = p.value * cap;
+  const revenue = p.opex < 1 ? noi / (1 - p.opex) : NaN;   // 영업수익
+  const roomRev = revenue * (1 - p.anc);                   // 객실매출(부대수익 제외)
+  const avail = p.rooms * p.days;                          // 연 판매가능 객실박수
+  const sold = avail * p.occ;                              // 연 판매 객실박수
+  const ok = cap > 0 && isFinite(roomRev) && roomRev > 0 && sold > 0;
+  return {
+    noi, revenue, roomRev, avail, sold,
+    adr:    ok ? roomRev / sold  : NaN,
+    revpar: ok ? roomRev / avail : NaN
+  };
+}
+const fmtAdr = n => (isFinite(n) && n > 0) ? formatComma(n) + '원' : '-';
+
+// opts.silent: true면 등장 애니메이션 없이 값만 갱신 (슬라이더 조작용)
+function calcAdrEstimate(opts){
+  const silent = !!(opts && opts.silent);
+  const p = {
+    value: toNumber('a_value'),
+    rooms: toNumber('a_rooms'),
+    days:  toNumber('a_days'),
+    occ:   toNumber('a_occ') / 100,
+    opex:  toNumber('a_opex') / 100,
+    anc:   toNumber('a_ancillary') / 100
+  };
+  const capPct = toNumber('a_cap');
+  const r = adrCore(p, capPct / 100);
+  const withVat = n => n * (1 + ADR_VAT_RATE);
+
+  document.getElementById('deriv-adrEstimate').innerHTML = `
+    <div class="deriv-cell"><div class="k">NOI (환원율 ${capPct.toFixed(1)}%)</div><div class="v">${formatKRW(r.noi)}</div></div>
+    <div class="deriv-cell"><div class="k">영업수익 (경비율 ${(p.opex*100).toFixed(1)}%)</div><div class="v">${formatKRW(r.revenue)}</div></div>
+    <div class="deriv-cell"><div class="k">객실매출 (부대수익 ${(p.anc*100).toFixed(1)}% 제외)</div><div class="v">${formatKRW(r.roomRev)}</div></div>
+    <div class="deriv-cell"><div class="k">판매 객실박수 (점유율 ${(p.occ*100).toFixed(1)}%)</div><div class="v">${formatComma(r.sold)}박</div></div>
+    <div class="deriv-cell noi"><div class="k">추정 ADR (VAT 제외)</div><div class="v">${fmtAdr(r.adr)}</div></div>
+  `;
+
+  document.getElementById('metrics-adrEstimate').innerHTML = `
+    <span>ADR (VAT 포함)<b>${fmtAdr(withVat(r.adr))}</b></span>
+    <span>RevPAR<b>${fmtAdr(r.revpar)}</b></span>
+    <span>연 판매가능 객실박수<b>${formatComma(r.avail)}박</b></span>
+    <span>객실당 수익가액<b>${p.rooms > 0 ? formatKRW(p.value / p.rooms) : '-'}</b></span>
+  `;
+
+  // 표 1: 환원율별 (기본 4.0~8.0% + 입력 환원율이 구간 밖이면 추가)
+  const rates = CAP_RATES.slice();
+  if(capPct > 0 && !rates.some(x=> Math.abs(x - capPct) < 1e-9)){
+    rates.push(capPct);
+    rates.sort((a,b)=> a-b);
+  }
+  document.getElementById('table-adrEstimate').innerHTML = rates.map(rt=>{
+    const c = adrCore(p, rt / 100);
+    const sel = Math.abs(rt - capPct) < 1e-9 ? 'sel' : '';
+    return `<tr class="${sel}">
+      <td>${rt.toFixed(1)}%</td>
+      <td>${formatKRW(c.noi)}</td>
+      <td>${formatKRW(c.revenue)}</td>
+      <td>${fmtAdr(c.adr)}</td>
+      <td>${fmtAdr(withVat(c.adr))}</td>
+    </tr>`;
+  }).join('');
+
+  // 표 2: 환원율 × 점유율 민감도 (입력 점유율 ±10%p, ±20%p, 0~100% 범위만)
+  const baseOcc = toNumber('a_occ');
+  const occs = [-20,-10,0,10,20]
+    .map(d => Math.round((baseOcc + d) * 10) / 10)
+    .filter(x => x > 0 && x <= 100);
+  const occLabel = x => (Number.isInteger(x) ? String(x) : x.toFixed(1)) + '%';
+  document.getElementById('thead-adrMatrix').innerHTML =
+    '<tr><th>환원율 \\ 점유율</th>' +
+    occs.map(o => `<th class="${Math.abs(o-baseOcc)<1e-9 ? 'col-sel' : ''}">${occLabel(o)}</th>`).join('') +
+    '</tr>';
+  document.getElementById('table-adrMatrix').innerHTML = rates.map(rt=>{
+    const isSelRow = Math.abs(rt - capPct) < 1e-9;
+    const cells = occs.map(o=>{
+      const c = adrCore(Object.assign({}, p, {occ: o/100}), rt/100);
+      const isSel = isSelRow && Math.abs(o - baseOcc) < 1e-9;
+      const txt = (isFinite(c.adr) && c.adr > 0) ? formatComma(c.adr) : '-';
+      return `<td class="${isSel ? 'sel-cell' : ''}">${txt}</td>`;
+    }).join('');
+    return `<tr class="${isSelRow ? 'sel' : ''}"><td>${rt.toFixed(1)}%</td>${cells}</tr>`;
+  }).join('');
+
+  document.getElementById('empty-adrEstimate').style.display = 'none';
+  const res = document.getElementById('results-adrEstimate');
+  if(!silent){
+    res.classList.remove('show');
+    void res.offsetWidth;
+  }
+  res.classList.add('show');
+}
+
+// 점유율 슬라이더 ↔ 숫자 동기화 + 어떤 입력이든 바뀌면 결과를 즉시 갱신 (항상 표시)
+adrPanel.addEventListener('input', (e)=>{
+  const t = e.target;
+  if(t.classList.contains('occ-range')){
+    document.getElementById(t.dataset.for).value = Number(t.value).toFixed(1);
+  }else if(t.classList.contains('occ-num')){
+    const r = adrPanel.querySelector('.occ-range[data-for="' + t.id + '"]');
+    if(r){ r.value = numFromEl(t); }
+  }
+  if(t.tagName === 'INPUT'){ calcAdrEstimate({silent:true}); }
+});
+
+// 열자마자 기본값으로 계산해 결과를 바로 표시
+calcAdrEstimate({silent:true});
 
 // initial run for preview
 calcRentToValue();
