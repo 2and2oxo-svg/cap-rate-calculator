@@ -1193,7 +1193,8 @@ document.getElementById('panel-adrEstimate').addEventListener('keydown', (e)=>{
   }
 });
 
-function calcRentToValue(){
+// opts.silent: true면 결과 등장 애니메이션 없이 값만 갱신 (실시간 갱신용)
+function calcRentToValue(opts){
   const deposit = toNumber('r_deposit');
   const rent = toNumber('r_rent');
   const depositRate = toNumber('r_depositRate');
@@ -1230,12 +1231,14 @@ function calcRentToValue(){
 
   document.getElementById('empty-rentToValue').style.display='none';
   const res = document.getElementById('results-rentToValue');
-  res.classList.remove('show');
-  void res.offsetWidth;
+  if(!(opts && opts.silent)){
+    res.classList.remove('show');
+    void res.offsetWidth;
+  }
   res.classList.add('show');
 }
 
-function calcValueToRent(){
+function calcValueToRent(opts){
   const value = toNumber('v_value');
   const deposit = toNumber('v_deposit');
   const depositRate = toNumber('v_depositRate');
@@ -1272,8 +1275,10 @@ function calcValueToRent(){
 
   document.getElementById('empty-valueToRent').style.display='none';
   const res = document.getElementById('results-valueToRent');
-  res.classList.remove('show');
-  void res.offsetWidth;
+  if(!(opts && opts.silent)){
+    res.classList.remove('show');
+    void res.offsetWidth;
+  }
   res.classList.add('show');
 }
 
@@ -1368,9 +1373,13 @@ roomRowsEl.addEventListener('click', (e)=>{
     ['.r-count','.r-wd','.r-we','.r-dwd','.r-dwe'].forEach(s=>{ row.querySelector(s).value = '0'; });
   }
   updateRatios();
+  liveHotel();
 });
 
-document.getElementById('addRoomBtn').addEventListener('click', ()=> addRoomRow(null, true));
+document.getElementById('addRoomBtn').addEventListener('click', ()=>{
+  addRoomRow(null, true);
+  liveHotel();
+});
 
 function readRooms(){
   return Array.from(roomRowsEl.querySelectorAll('.room-row')).map(row=>({
@@ -1485,11 +1494,9 @@ function calcHotelValue(opts){
 const hotelPanel = document.getElementById('panel-hotelValue');
 const dayUseEl = document.getElementById('h_dayUse');
 
-// 이미 결과가 표시된 상태라면 슬라이더·체크 조작 즉시 결과 갱신
+// 입력·체크·행 추가/삭제 등 어떤 변경이든 결과를 즉시 갱신 (결과는 항상 표시)
 function liveHotel(){
-  if(document.getElementById('results-hotelValue').classList.contains('show')){
-    calcHotelValue({silent:true});
-  }
+  calcHotelValue({silent:true});
 }
 
 function applyDayUse(){
@@ -1499,17 +1506,16 @@ function applyDayUse(){
 }
 dayUseEl.addEventListener('change', applyDayUse);
 
-// 슬라이더 ↔ 숫자 입력 동기화
+// 슬라이더 ↔ 숫자 입력 동기화 + 패널 내 어떤 입력이든 바뀌면 즉시 갱신
 hotelPanel.addEventListener('input', (e)=>{
   const t = e.target;
   if(t.classList.contains('occ-range')){
     document.getElementById(t.dataset.for).value = Number(t.value).toFixed(1);
-    liveHotel();
   }else if(t.classList.contains('occ-num')){
     const r = hotelPanel.querySelector('.occ-range[data-for="' + t.id + '"]');
     if(r){ r.value = numFromEl(t); }
-    liveHotel();
   }
+  if(t.tagName === 'INPUT'){ liveHotel(); }
 });
 
 // 기본 객실 구성 (예시값 — 실제 값으로 수정해서 사용)
@@ -1637,8 +1643,16 @@ adrPanel.addEventListener('input', (e)=>{
 // 열자마자 기본값으로 계산해 결과를 바로 표시
 calcAdrEstimate({silent:true});
 
-// initial run for preview
-calcRentToValue();
+// 탭 1·2: 열자마자 기본값으로 계산해 결과를 표시하고, 입력할 때마다 즉시 갱신
+// (탭 3·4도 같은 방식으로 동작: liveHotel / calcAdrEstimate 위 참고)
+document.getElementById('panel-rentToValue').addEventListener('input', (e)=>{
+  if(e.target.tagName === 'INPUT'){ calcRentToValue({silent:true}); }
+});
+document.getElementById('panel-valueToRent').addEventListener('input', (e)=>{
+  if(e.target.tagName === 'INPUT'){ calcValueToRent({silent:true}); }
+});
+calcRentToValue({silent:true});
+calcValueToRent({silent:true});
 
 // 첫 입력 필드로 포커스 (autofocus 미동작 브라우저 대비)
 window.addEventListener('DOMContentLoaded', ()=>{
