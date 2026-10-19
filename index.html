@@ -36,11 +36,12 @@ body{
   color:var(--ink);
   font-family:'Pretendard', -apple-system, sans-serif;
   min-height:100vh;
-  padding:40px 20px 80px;
+  padding:14px 20px 80px;
 }
 
 .sheet{
   max-width:920px;
+  transition:max-width .25s ease;
   margin:0 auto;
   background:var(--white);
   border:1px solid var(--line);
@@ -48,47 +49,31 @@ body{
   position:relative;
 }
 
-/* ===== HEADER ===== */
+/* ===== HEADER (한 줄 띠) ===== */
 .doc-header{
   display:flex;
-  align-items:flex-start;
+  align-items:baseline;
   justify-content:space-between;
-  padding:36px 40px 26px;
+  gap:16px;
+  padding:9px 40px 8px;
   border-bottom:2px solid var(--ink);
-  position:relative;
 }
-.doc-title-wrap{display:flex; flex-direction:column; gap:6px;}
 .eyebrow{
   font-family:'JetBrains Mono', monospace;
-  font-size:11px;
-  letter-spacing:0.16em;
+  font-size:10px;
+  letter-spacing:0.14em;
   color:var(--seal);
   text-transform:uppercase;
+  white-space:nowrap;
 }
 h1{
   font-family:'Noto Serif KR', serif;
   font-weight:700;
-  font-size:26px;
+  font-size:15px;
   margin:0;
   letter-spacing:-0.01em;
   color:var(--ink);
 }
-.subtitle{
-  font-size:13px;
-  color:var(--ink-soft);
-  margin-top:2px;
-  line-height:1.6;
-}
-
-.seal{
-  flex:none;
-  width:78px;
-  height:78px;
-  position:relative;
-  transform:rotate(-9deg);
-  opacity:0.92;
-}
-.seal svg{width:100%;height:100%;display:block; mix-blend-mode:multiply;}
 
 /* ===== TABS ===== */
 .tabs{
@@ -544,6 +529,73 @@ table.result-table{
   line-height:1.6;
 }
 
+/* ===== 숙박시설 탭: 한 화면 레이아웃 (입력 왼쪽 / 결과 오른쪽 고정) ===== */
+#panel-hotelValue{ padding:20px 28px 10px; }
+.hotel-layout{ display:block; }
+.hl-inputs .section-label{ margin:16px 0 8px; }
+.hl-inputs .toggle-row{ padding:8px 12px; margin-bottom:2px; align-items:center; }
+.hl-inputs .tg-desc{ display:none; }
+.hl-inputs .tg-title{ font-size:13.5px; }
+.hl-inputs .room-table{ margin-bottom:8px; }
+.hl-inputs .add-room-btn{ margin-bottom:4px; padding:7px 12px; }
+.hl-inputs .room-head div{ padding:8px 8px; font-size:11px; }
+.hl-inputs .room-row .cell{ padding:6px 8px; }
+.hl-inputs .room-row input{ font-size:13.5px; }
+.hl-inputs .ratio{ white-space:normal; overflow:visible; font-size:10px; line-height:1.3; min-height:0; }
+.hl-inputs .form-grid{ margin-bottom:0; }
+.hl-inputs .field{ padding:9px 14px; }
+.hl-inputs .field label{ margin-bottom:3px; }
+
+.occ-compact{ border:1px solid var(--line); }
+.oc-head, .oc-row{ display:grid; grid-template-columns:150px 1fr 1fr; align-items:center; }
+#occSingle .oc-row{ grid-template-columns:150px 1fr; }
+.oc-head{ background:var(--paper-deep); border-bottom:1px solid var(--line); }
+.oc-head div{ padding:7px 12px; font-size:11.5px; font-weight:600; color:var(--ink-soft); text-align:right; }
+.oc-row + .oc-row{ border-top:1px solid var(--line-soft); }
+.oc-name{ padding:8px 12px; font-size:12.5px; font-weight:600; color:var(--ink); }
+.oc-name .hint{ display:block; margin:1px 0 0; font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:400; color:var(--ink-faint); }
+.oc-head .hint{ font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:400; color:var(--ink-faint); margin-left:4px; }
+.oc-cell{ padding:6px 12px; }
+.oc-cell .occ-val{ justify-content:flex-end; }
+.oc-cell .occ-val input{ width:100%; }
+
+.hl-results .section-label{ margin:16px 0 8px; }
+.hl-results .section-label:first-child{ margin-top:0; }
+.hl-results .derivation{ margin-bottom:10px; }
+.hl-results .metrics{ margin:0 0 4px; padding:8px 12px; gap:4px 16px; }
+.hl-results .result-table thead th, .hl-results .result-table tbody td{ padding:7px 12px; font-size:12.5px; }
+
+/* 좁은 화면: 화면 아래에 붙어 있는 요약 바 */
+.mini-bar{
+  position:sticky; bottom:0; z-index:5;
+  display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px;
+  margin:12px -28px 0; padding:10px 28px;
+  background:var(--ink); color:var(--white); font-size:12px;
+}
+.mini-bar b{ font-family:'JetBrains Mono', monospace; font-weight:600; font-size:13px; }
+.mini-bar .mb-label{ opacity:.75; }
+.mini-bar .mb-sep{ opacity:.4; }
+
+@media (min-width:1180px){
+  .sheet.wide{ max-width:1240px; }
+  .hotel-layout{ display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:28px; align-items:start; }
+  .hl-results{ position:sticky; top:12px; }
+  .hl-results .derivation{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .hl-results .derivation .deriv-cell{ border-right:1px solid var(--line-soft); }
+  .hl-results .derivation .deriv-cell:nth-child(3n){ border-right:none; }
+  .hl-results .derivation .deriv-cell:nth-child(n+4){ border-top:1px solid var(--line-soft); }
+  .hl-results .derivation:not(.six) .deriv-cell:last-child{ grid-column:span 2; border-right:none; }
+  .hl-results .deriv-cell{ padding:10px 12px; }
+  .hl-results .deriv-cell .v{ font-size:11.5px; word-break:keep-all; letter-spacing:-0.02em; }
+  .mini-bar{ display:none; }
+
+  /* 한 화면에 들어오도록 운영 가정 4칸을 한 줄로 */
+  .hl-inputs .form-grid{ grid-template-columns:repeat(4,1fr); }
+  .hl-inputs .form-grid .field{ border-right:1px solid var(--line-soft); }
+  .hl-inputs .form-grid .field:nth-child(4n){ border-right:none; }
+  .hl-inputs .field .hint{ display:none; }
+}
+
 /* 요금 입력 참고용 배수 표시 */
 .ratio{
   display:block;
@@ -620,8 +672,8 @@ table.result-table{
 
 @media (max-width:640px){
   body{padding:16px 10px 60px;}
-  .doc-header{padding:26px 20px 20px; flex-direction:column; gap:16px;}
-  .seal{align-self:flex-end;}
+  .doc-header{padding:8px 14px 7px;}
+  .doc-header .eyebrow{display:none;}
   .panel{padding:24px 18px 10px;}
   .form-grid{grid-template-columns:1fr;}
   .field:nth-child(2n){border-right:1px solid var(--line-soft);}
@@ -652,6 +704,11 @@ table.result-table{
   .ratio{white-space:normal; overflow:visible; text-overflow:clip;}
   .room-row .c-dwd{grid-area:dwd;}
   .room-row .c-dwe{grid-area:dwe;}
+  #panel-hotelValue{padding:16px 14px 0;}
+  .mini-bar{margin:12px -14px 0; padding:10px 14px;}
+  .oc-head, .oc-row{grid-template-columns:96px 1fr 1fr;}
+  #occSingle .oc-row{grid-template-columns:96px 1fr;}
+  .oc-cell{padding:6px 8px;}
   .occ-block.split{grid-template-columns:1fr;}
   .occ-block.split .occ-group + .occ-group{border-left:none; border-top:1px solid var(--line-soft);}
   .occ-group{padding:14px 16px 4px;}
@@ -667,29 +724,8 @@ table.result-table{
 <div class="sheet">
 
   <div class="doc-header">
-    <div class="doc-title-wrap">
-      <div class="eyebrow">Income Capitalization · 직접환원법</div>
-      <h1>수익가액 · 적정임대료 산정기</h1>
-      <div class="subtitle">임대료 ⇄ 부동산 가치를 환원율 4.0%~8.0% (0.5%p 단위) 구간으로<br>시뮬레이션하는 상업용 부동산 참고 계산 도구</div>
-    </div>
-    <div class="seal">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="inkTexture" x="-20%" y="-20%" width="140%" height="140%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="noise"/>
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4"/>
-          </filter>
-        </defs>
-        <g filter="url(#inkTexture)" fill="none" stroke="#A63B2E" stroke-width="2.4">
-          <circle cx="50" cy="50" r="44"/>
-          <circle cx="50" cy="50" r="37"/>
-        </g>
-        <g filter="url(#inkTexture)" fill="#A63B2E">
-          <text x="50" y="42" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="15" font-weight="700">鑑定</text>
-          <text x="50" y="63" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="12" font-weight="700">評價</text>
-        </g>
-      </svg>
-    </div>
+    <h1>수익가액 · 적정임대료 산정기</h1>
+    <span class="eyebrow">Income Capitalization · 직접환원법</span>
   </div>
 
   <div class="tabs">
@@ -851,141 +887,124 @@ table.result-table{
 
   <!-- ============ PANEL 3: 숙박시설 영업수익 → 가치 ============ -->
   <div class="panel has-dayuse" id="panel-hotelValue">
-    <div class="section-label">운영 형태</div>
-    <label class="toggle-row" for="h_dayUse">
-      <input type="checkbox" id="h_dayUse" checked>
-      <span class="tg-box" aria-hidden="true"></span>
-      <span class="tg-text">
-        <span class="tg-title">대실 운영</span>
-        <span class="tg-desc">체크하면 대실 요금이 추가되고, 숙박·대실의 평일/주말 점유율을 각각 조정할 수 있습니다.</span>
-      </span>
-    </label>
+    <div class="hotel-layout">
 
-    <div class="section-label">객실 구성 및 요금</div>
-    <div class="room-table">
-      <div class="room-head">
-        <div>객실 타입</div>
-        <div class="r">객실 수</div>
-        <div class="r">숙박 평일 (원/박)</div>
-        <div class="r">숙박 주말 (원/박)</div>
-        <div class="r dayuse-col">대실 평일 (원/회)</div>
-        <div class="r dayuse-col">대실 주말 (원/회)</div>
-        <div></div>
-      </div>
-      <div id="roomRows"></div>
-    </div>
-    <button type="button" class="add-room-btn" id="addRoomBtn">+ 객실 타입 추가</button>
+      <!-- 입력 -->
+      <div class="hl-inputs">
+        <label class="toggle-row" for="h_dayUse" title="체크하면 대실 요금 칸이 추가되고, 숙박·대실의 평일/주말 점유율을 각각 입력합니다.">
+          <input type="checkbox" id="h_dayUse" checked>
+          <span class="tg-box" aria-hidden="true"></span>
+          <span class="tg-text">
+            <span class="tg-title">대실 운영</span>
+            <span class="tg-desc">체크하면 대실 요금 칸이 추가되고, 숙박·대실의 평일/주말 점유율을 각각 입력합니다.</span>
+          </span>
+        </label>
 
-    <div class="section-label">점유율</div>
-    <!-- 대실 미운영: 숙박 점유율 1개 (평일·주말 공통) -->
-    <div class="occ-block" id="occSingle">
-      <div class="occ-group">
-        <div class="occ-ctl">
-          <div class="occ-top">
-            <label for="h_occ">숙박 점유율 <span class="hint">평일·주말 공통</span></label>
-            <div class="occ-val"><input type="text" inputmode="decimal" class="occ-num" id="h_occ" value="70.0"><span>%</span></div>
+        <div class="section-label">객실 구성 및 요금</div>
+        <div class="room-table">
+          <div class="room-head">
+            <div>객실 타입</div>
+            <div class="r">객실 수</div>
+            <div class="r">숙박 평일 (원/박)</div>
+            <div class="r">숙박 주말 (원/박)</div>
+            <div class="r dayuse-col">대실 평일 (원/회)</div>
+            <div class="r dayuse-col">대실 주말 (원/회)</div>
+            <div></div>
           </div>
-          <input type="range" class="occ-range" data-for="h_occ" min="0" max="100" step="0.5" value="70" aria-label="숙박 점유율">
+          <div id="roomRows"></div>
         </div>
-      </div>
-    </div>
-    <!-- 대실 운영: 숙박/대실 × 평일/주말 4개를 각각 조정 -->
-    <div class="occ-block split" id="occSplit">
-      <div class="occ-group">
-        <div class="occ-title">숙박 점유율</div>
-        <div class="occ-ctl">
-          <div class="occ-top">
-            <label for="h_occLodWd">평일 <span class="hint">일~목</span></label>
-            <div class="occ-val"><input type="text" inputmode="decimal" class="occ-num" id="h_occLodWd" value="65.0"><span>%</span></div>
+        <button type="button" class="add-room-btn" id="addRoomBtn">+ 객실 타입 추가</button>
+
+        <div class="section-label">점유율</div>
+        <!-- 대실 미운영: 숙박 점유율 1개 (평일·주말 공통) -->
+        <div class="occ-compact" id="occSingle">
+          <div class="oc-row">
+            <div class="oc-name">숙박 <span class="hint">평일·주말 공통</span></div>
+            <div class="oc-cell"><div class="occ-val"><input type="text" inputmode="decimal" class="occ-num" id="h_occ" value="70.0" aria-label="숙박 점유율"><span>%</span></div></div>
           </div>
-          <input type="range" class="occ-range" data-for="h_occLodWd" min="0" max="100" step="0.5" value="65" aria-label="숙박 평일 점유율">
         </div>
-        <div class="occ-ctl">
-          <div class="occ-top">
-            <label for="h_occLodWe">주말 <span class="hint">금·토</span></label>
-            <div class="occ-val"><input type="text" inputmode="decimal" class="occ-num" id="h_occLodWe" value="80.0"><span>%</span></div>
+        <!-- 대실 운영: 숙박/대실 × 평일/주말 -->
+        <div class="occ-compact" id="occSplit">
+          <div class="oc-head">
+            <div></div>
+            <div>평일 <span class="hint">일~목</span></div>
+            <div>주말 <span class="hint">금·토</span></div>
           </div>
-          <input type="range" class="occ-range" data-for="h_occLodWe" min="0" max="100" step="0.5" value="80" aria-label="숙박 주말 점유율">
-        </div>
-      </div>
-      <div class="occ-group">
-        <div class="occ-title">대실 점유율 <span class="hint">100% = 객실당 하루 1회</span></div>
-        <div class="occ-ctl">
-          <div class="occ-top">
-            <label for="h_occDayWd">평일 <span class="hint">일~목</span></label>
-            <div class="occ-val"><input type="text" inputmode="decimal" class="occ-num" id="h_occDayWd" value="40.0"><span>%</span></div>
+          <div class="oc-row">
+            <div class="oc-name">숙박</div>
+            <div class="oc-cell"><div class="occ-val"><input type="text" inputmode="decimal" class="occ-num" id="h_occLodWd" value="65.0" aria-label="숙박 평일 점유율"><span>%</span></div></div>
+            <div class="oc-cell"><div class="occ-val"><input type="text" inputmode="decimal" class="occ-num" id="h_occLodWe" value="80.0" aria-label="숙박 주말 점유율"><span>%</span></div></div>
           </div>
-          <input type="range" class="occ-range" data-for="h_occDayWd" min="0" max="100" step="0.5" value="40" aria-label="대실 평일 점유율">
-        </div>
-        <div class="occ-ctl">
-          <div class="occ-top">
-            <label for="h_occDayWe">주말 <span class="hint">금·토</span></label>
-            <div class="occ-val"><input type="text" inputmode="decimal" class="occ-num" id="h_occDayWe" value="60.0"><span>%</span></div>
+          <div class="oc-row">
+            <div class="oc-name">대실 <span class="hint">100% = 1일 1회</span></div>
+            <div class="oc-cell"><div class="occ-val"><input type="text" inputmode="decimal" class="occ-num" id="h_occDayWd" value="40.0" aria-label="대실 평일 점유율"><span>%</span></div></div>
+            <div class="oc-cell"><div class="occ-val"><input type="text" inputmode="decimal" class="occ-num" id="h_occDayWe" value="60.0" aria-label="대실 주말 점유율"><span>%</span></div></div>
           </div>
-          <input type="range" class="occ-range" data-for="h_occDayWe" min="0" max="100" step="0.5" value="60" aria-label="대실 주말 점유율">
         </div>
+
+        <div class="section-label">운영 가정</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>평일 박수 (일~목) <span class="hint">WEEKDAY NIGHTS</span></label>
+            <div class="input-row">
+              <input type="text" inputmode="numeric" class="num-input" id="h_weekdayNights" value="261">
+              <span class="unit">박 / 년</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>주말 박수 (금·토) <span class="hint">WEEKEND NIGHTS</span></label>
+            <div class="input-row">
+              <input type="text" inputmode="numeric" class="num-input" id="h_weekendNights" value="104">
+              <span class="unit">박 / 년</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>경비율 <span class="hint">EXPENSE RATIO</span></label>
+            <div class="input-row">
+              <input type="text" inputmode="decimal" id="h_opex" value="40.0">
+              <span class="unit">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>환원율 <span class="hint">CAP RATE</span></label>
+            <div class="input-row">
+              <input type="text" inputmode="decimal" id="h_cap" value="7.0">
+              <span class="unit">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 결과 (넓은 화면에서는 오른쪽에 고정되어 입력 중에도 항상 보임) -->
+      <div class="hl-results">
+        <div class="results" id="results-hotelValue">
+          <div class="section-label">산출 근거</div>
+          <div class="derivation" id="deriv-hotelValue"></div>
+          <div class="metrics" id="metrics-hotelValue"></div>
+
+          <div class="section-label">환원율별 수익가액 (4.0% ~ 8.0%, 0.5%p 단위)</div>
+          <table class="result-table">
+            <thead>
+              <tr><th>환원율</th><th>산정 수익가액</th><th>객실당 가치</th></tr>
+            </thead>
+            <tbody id="table-hotelValue"></tbody>
+          </table>
+        </div>
+        <div class="empty-msg" id="empty-hotelValue" style="display:none"></div>
       </div>
     </div>
-
-    <div class="section-label">운영 가정</div>
-    <div class="form-grid">
-      <div class="field">
-        <label>평일 박수 (일~목) <span class="hint">WEEKDAY NIGHTS</span></label>
-        <div class="input-row">
-          <input type="text" inputmode="numeric" class="num-input" id="h_weekdayNights" value="261">
-          <span class="unit">박 / 년</span>
-        </div>
-      </div>
-      <div class="field">
-        <label>주말 박수 (금·토) <span class="hint">WEEKEND NIGHTS</span></label>
-        <div class="input-row">
-          <input type="text" inputmode="numeric" class="num-input" id="h_weekendNights" value="104">
-          <span class="unit">박 / 년</span>
-        </div>
-      </div>
-      <div class="field">
-        <label>경비율 <span class="hint">EXPENSE RATIO</span></label>
-        <div class="input-row">
-          <input type="text" inputmode="decimal" id="h_opex" value="40.0">
-          <span class="unit">%</span>
-        </div>
-      </div>
-      <div class="field">
-        <label>환원율 <span class="hint">CAP RATE</span></label>
-        <div class="input-row">
-          <input type="text" inputmode="decimal" id="h_cap" value="7.0">
-          <span class="unit">%</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="calc-btn-row">
-      <button class="calc-btn" onclick="calcHotelValue()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-        수익가액 산정
-      </button>
-    </div>
-
-    <div class="results" id="results-hotelValue">
-      <div class="section-label">산출 근거</div>
-      <div class="derivation" id="deriv-hotelValue"></div>
-      <div class="metrics" id="metrics-hotelValue"></div>
-
-      <div class="section-label">환원율별 수익가액 (환원율 4.0% ~ 8.0%, 0.5%p 단위)</div>
-      <table class="result-table">
-        <thead>
-          <tr><th>환원율</th><th>순영업소득 (NOI, 연)</th><th>산정 수익가액</th><th>객실당 가치</th></tr>
-        </thead>
-        <tbody id="table-hotelValue"></tbody>
-      </table>
-    </div>
-
-    <div class="empty-msg" id="empty-hotelValue">입력값을 확인한 뒤 «수익가액 산정»을 눌러주세요.</div>
 
     <div class="notes">
       <b>산식</b> · 숙박매출 = Σ 객실수 × (평일요금×평일박수×평일점유율 + 주말요금×주말박수×주말점유율) &nbsp;/&nbsp; 대실매출도 같은 방식(대실 요금·점유율 적용) &nbsp;→&nbsp; 영업수익 = 숙박매출 + 대실매출 &nbsp;→&nbsp; NOI = 영업수익 × (1−경비율) &nbsp;→&nbsp; <b>가치 = NOI ÷ 환원율</b><br>
-      평일·주말 박수의 합이 연 영업일수입니다(기본 261+104=365일). 대실 점유율은 «100% = 모든 객실이 하루 1회 대실»을 뜻하며, 100%를 넘게 직접 입력하면 객실당 하루 평균 1회를 초과하는 회전으로 계산됩니다. 숙박과 대실은 서로 독립적으로 계산하며, 객실매출 외 부대수익(F&amp;B 등)은 포함하지 않습니다. «대실 운영» 체크를 해제하면 숙박 점유율 1개(평일·주말 공통)만 적용됩니다. 표에서 «입력» 배지가 붙은 행이 입력하신 환원율 기준 결과입니다.<br>
+      평일·주말 박수의 합이 연 영업일수입니다(기본 261+104=365일). 대실 점유율은 «100% = 모든 객실이 하루 1회 대실»을 뜻하며, 100%를 넘게 직접 입력하면 객실당 하루 평균 1회를 초과하는 회전으로 계산됩니다. 숙박과 대실은 서로 독립적으로 계산하며, 객실매출 외 부대수익(F&amp;B 등)은 포함하지 않습니다. «대실 운영» 체크를 해제하면 숙박 점유율 1개(평일·주말 공통)만 적용됩니다. 표에서 «입력» 배지가 붙은 행이 입력하신 환원율 기준 결과입니다. 순영업소득(NOI)은 환원율과 무관하므로 «산출 근거»에 한 번만 표시합니다.<br>
       요금 칸 아래의 작은 글씨는 요금 입력 시 참고용 배수입니다. 숙박 평일요금은 첫 번째 객실 타입(기준) 대비, 주말요금은 평일 대비, 대실 평일요금은 같은 타입의 숙박 평일요금 대비로 표시되며 계산에는 영향을 주지 않습니다.
+    </div>
+
+    <!-- 좁은 화면(결과가 아래로 밀리는 경우)용: 화면 아래에 항상 붙어 있는 요약 바 -->
+    <div class="mini-bar" id="hotelMiniBar" aria-live="polite">
+      <span class="mb-label">수익가액 <span id="miniCap"></span></span><b id="miniValue">-</b>
+      <span class="mb-sep">·</span>
+      <span class="mb-label">NOI</span><b id="miniNoi">-</b>
     </div>
   </div>
 
@@ -1157,6 +1176,8 @@ document.querySelectorAll('.tab').forEach(tab=>{
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
     tab.classList.add('active');
     document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+    // 숙박시설 탭은 입력(왼쪽)과 결과(오른쪽)를 한 화면에 보이도록 시트를 넓힘
+    document.querySelector('.sheet').classList.toggle('wide', tab.dataset.tab === 'hotelValue');
     focusFirst(tab.dataset.tab);
   });
 });
@@ -1475,11 +1496,15 @@ function calcHotelValue(opts){
     const sel = Math.abs(r-cap) < 1e-9 ? 'sel' : '';
     return `<tr class="${sel}">
       <td>${r.toFixed(1)}%</td>
-      <td>${formatKRW(noi)}</td>
       <td>${formatKRW(value)}</td>
       <td>${formatKRW(perRoom)}</td>
     </tr>`;
   }).join('');
+
+  // 좁은 화면용 하단 요약 바
+  document.getElementById('miniCap').textContent = '(환원율 ' + cap.toFixed(1) + '%)';
+  document.getElementById('miniValue').textContent = formatKRW(valueAtInput);
+  document.getElementById('miniNoi').textContent = formatKRW(noi);
 
   document.getElementById('empty-hotelValue').style.display = 'none';
   const res = document.getElementById('results-hotelValue');
@@ -1506,16 +1531,9 @@ function applyDayUse(){
 }
 dayUseEl.addEventListener('change', applyDayUse);
 
-// 슬라이더 ↔ 숫자 입력 동기화 + 패널 내 어떤 입력이든 바뀌면 즉시 갱신
+// 패널 내 어떤 입력이든 바뀌면 즉시 갱신
 hotelPanel.addEventListener('input', (e)=>{
-  const t = e.target;
-  if(t.classList.contains('occ-range')){
-    document.getElementById(t.dataset.for).value = Number(t.value).toFixed(1);
-  }else if(t.classList.contains('occ-num')){
-    const r = hotelPanel.querySelector('.occ-range[data-for="' + t.id + '"]');
-    if(r){ r.value = numFromEl(t); }
-  }
-  if(t.tagName === 'INPUT'){ liveHotel(); }
+  if(e.target.tagName === 'INPUT'){ liveHotel(); }
 });
 
 // 기본 객실 구성 (예시값 — 실제 값으로 수정해서 사용)
